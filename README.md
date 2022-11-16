@@ -1,0 +1,1 @@
+# Schema for one-shot learning of paired associations
