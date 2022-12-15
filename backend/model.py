@@ -167,7 +167,7 @@ class GoalCells:
                 dwg = eg * StepR  # trace * reward
             self.wgoal += self.tstep * self.goallr * dwg
 
-    def decay_goal(self, ract, reward, current):
+    def decay_goal(self, ract, reward, current=None):
         ed = tf.matmul(ract, self.gfr, transpose_a=True)
         if self.achsig !=0:
             gd = self.goal_exp(xy=current,goal=self.gfr)

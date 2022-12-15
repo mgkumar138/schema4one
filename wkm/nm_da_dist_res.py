@@ -149,11 +149,11 @@ def setup_hebagent_multiplepa_expt(hp,b):
 
     # Start Evaluation
     lat[trsess:trsess + evsess], mvpath[3], opaw, dgr[3], pi[3] = run_hebagent_multiplepa_expt(b,'opa', env, hp,agent, alldyn, evsess, trw, noreward=[nonrp[0]])
-    lat[trsess + evsess:trsess + evsess * 2], mvpath[4],  npaw, dgr[4], pi[4] = run_hebagent_multiplepa_expt(b,'2npa', env, hp, agent, alldyn, evsess, trw, noreward=[nonrp[0]])
-    lat[trsess + evsess * 2:trsess + evsess * 3], mvpath[5], nmw, dgr[5], pi[5] = run_hebagent_multiplepa_expt(b, '6npa', env, hp, agent, alldyn, evsess, trw, noreward=[nonrp[0]])
+    lat[trsess + evsess:trsess + evsess * 2], mvpath[4],  npa2w, dgr[4], pi[4] = run_hebagent_multiplepa_expt(b,'2npa', env, hp, agent, alldyn, evsess, trw, noreward=[nonrp[0]])
+    lat[trsess + evsess * 2:trsess + evsess * 3], mvpath[5], npa6w, dgr[5], pi[5] = run_hebagent_multiplepa_expt(b, '6npa', env, hp, agent, alldyn, evsess, trw, noreward=[nonrp[0]])
     lat[trsess + evsess * 3:], mvpath[6], nmw, dgr[6], pi[6] = run_hebagent_multiplepa_expt(b, 'nm', env, hp, agent, alldyn, evsess, trw, noreward=[nonrp[0]])
 
-    allw = [trw, opaw, npaw, nmw]
+    allw = [trw, opaw, npa2w, npa6w, nmw]
 
     if hp['savevar']:
         saveload('save', './Data/vars_{:.2g}o_{:.2g}n_{}_{}'.format(dgr[3], dgr[4], exptname, dt.time()),
@@ -288,9 +288,9 @@ def run_hebagent_multiplepa_expt(b, mtype, env, hp, agent, alldyn, sessions, use
 
 if __name__ == '__main__':
 
-    hp = get_default_hp(task='wkm',platform='server')
+    hp = get_default_hp(task='wkm',platform='laptop')
 
-    hp['btstp'] = 6
+    hp['btstp'] = 1
     hp['savefig'] = True
     hp['savegenvar'] = False
     hp['savevar'] = False
@@ -299,7 +299,7 @@ if __name__ == '__main__':
     hp['mlr'] = 0.0001  # 0.0001
     hp['memlearnrule'] = 'da'
 
-    hp['alr'] = 0.00005  # different for no obs
+    hp['alr'] = 0.00001  # different for no obs
     hp['clr'] = 0.0002  #
     hp['taug'] = 3000  # 2000
 

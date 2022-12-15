@@ -259,7 +259,7 @@ class Maze:
 
         elif mtype == '6nm':
             self.rlocs = np.array(
-                [self.holoc[1], self.holoc[11], self.holoc[20], self.holoc[25], self.holoc[38], self.holoc[44]])
+                [self.holoc[6], self.holoc[12], self.holoc[18], self.holoc[30], self.holoc[38], self.holoc[40]])
             self.cues = np.concatenate([self.smell[6:10], self.smell[16][None, :], self.smell[17][None, :]], axis=0)
             self.totr = 6
 

@@ -252,7 +252,7 @@ if __name__ == '__main__':
 
     hp['btstp'] = 4
     hp['savefig'] = True
-    hp['savegenvar'] = True
+    hp['savegenvar'] = False
     hp['savevar'] = False
 
     hp['alr'] = 0.00005  # 0.0005
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     hp['Rval'] = 5
     hp['render'] = False  # visualise movement trial by trial
 
-    allcb = [1]
+    allcb = [0]
     pool = mp.Pool(processes=hp['cpucount'])
 
     for cb in allcb:

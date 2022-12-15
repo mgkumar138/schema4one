@@ -116,7 +116,7 @@ def setup_hebagent_multiplepa_expt(hp,b):
 
         latency, path, weight, visitratio, perfidx = run_hebagent_multiplepa_expt(b, mtype, env, hp, agent, alldyn, sess, useweight=useweight, noreward=nonprobe)
 
-        if mtype == 'train':
+        if mtype == 'train' or mtype == 'nm':
             useweight = weight
 
         lat.append(latency)
