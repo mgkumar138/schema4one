@@ -201,6 +201,10 @@ def get_savings(latency):
     savings = latency[:,:,0]-latency[:,:,1]
     return np.mean(savings,axis=0), np.std(savings,axis=0)/np.sqrt(latency.shape[0])
 
+def get_savings_ind(latency):
+    return latency[:,:,0]-latency[:,:,1]
+
+
 
 def plot_1pa_maps_dmp(alldyn, mvpath, hp, pweights, pltidx=[3,4,10]):
     qdyn = alldyn[1]
@@ -339,3 +343,6 @@ def plot_single_map(qfr, cfr,coord, hp):
     plt.xticks([], [])
     plt.yticks([], [])
     plt.gca().set_aspect('equal', adjustable='box')
+
+def compute_auc(learncurves):
+    return np.trapz(learncurves)

@@ -628,6 +628,9 @@ class PlaceCells:
             plt.show()
 
     def flip_pcs(self):
+        #self.pcidx = np.arange(len(self.pcs))
+        #np.random.shuffle(self.pcidx)
+        #self.pcs = self.pcs[self.pcidx]
         np.random.shuffle(self.pcs)  # randomly shuffle place cell selectivity
 
 

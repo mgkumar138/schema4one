@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.getcwd())
-from backend.model import RecurrentCells, GoalCells
+from backend.model import FeedForwardCells, GoalCells
 from backend.utils import get_default_hp, saveload, savefig
 from backend.maze import run_Rstep
 import numpy as np
@@ -20,10 +20,7 @@ def run_association(hp,b):
     goals = np.random.uniform(low=-1,high=1, size=[ncues,2])
 
     # model
-    if hp['rtype'] == 'fb':
-        res = RecurrentCells(hp, ninput=ncues+2)
-    else:
-        res = RecurrentCells(hp, ninput=ncues)
+    ff = FeedForwardCells(hp, ninput=ncues)
     target = GoalCells(hp)
 
     phase = ['learn','unlearn']
@@ -38,7 +35,6 @@ def run_association(hp,b):
                 terr = []
                 cue = cues[c]
                 goal = goals[c][None, :]
-                res.reset()
                 target.reset()
                 truegoal = np.concatenate([goal, np.array([[1]])], axis=1)
                 gt = np.zeros([1,3])
@@ -54,9 +50,9 @@ def run_association(hp,b):
                 for t in range(hp['time'] * 1000 // hp['tstep']):
 
                     if hp['rtype'] == 'fb':
-                        rfr = res.process(np.concatenate([cue[None, :],gt[:,:2]],axis=1))
+                        rfr = ff.process(np.concatenate([cue[None, :],gt[:,:2]],axis=1))
                     else:
-                        rfr = res.process(cue[None, :])
+                        rfr = ff.process(cue[None, :])
 
                     gt = target.recall(rfr)
                     allg[c,t+idx]= np.concatenate([gt, target.gnoisy],axis=1)
@@ -122,8 +118,9 @@ if __name__ == '__main__':
     hp['tolr'] = 1e-8
     hp['wkm'] = False
     hp['rtype'] = 'none'
+    hp['ract'] = 'relu'
 
-    exptname = 'gbar_{}sl_{}N_{}lr_{}ns_{}ach'.format(hp['stochlearn'], hp['nrnn'], hp['glr'], hp['gns'], hp['ach'])
+    exptname = 'ff_{}sl_{}N_{}lr_{}ns_{}ach'.format(hp['stochlearn'], hp['nrnn'], hp['glr'], hp['gns'], hp['ach'])
     print(exptname)
 
     #allN = 2**np.arange(7,12)
@@ -152,7 +149,7 @@ if __name__ == '__main__':
     # plot
     trackg[:,hp['time']*1000//20:hp['time']*1000//20+50] = np.nan
 
-    #saveload('save', './Data/vars_learn_unlearn_ach_{}cues'.format(hp['ncues']), [allerr, trackg])
+    saveload('save', './Data/vars_ff_learn_unlearn_ach_{}cues'.format(hp['ncues']), [allerr, trackg])
 
 
     import matplotlib as mpl
@@ -209,5 +206,5 @@ if __name__ == '__main__':
             elif c == 2:
                 plt.text(650, 1.4, 'Ach=0.001')
     f.tight_layout()
-    #savefig('./Fig/{}_hori_{}cues.png'.format(exptname, hp['ncues']), f)
+    savefig('./Fig/{}_{}cues.png'.format(exptname, hp['ncues']), f)
 

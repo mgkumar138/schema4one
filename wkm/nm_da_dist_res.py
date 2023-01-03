@@ -306,7 +306,7 @@ if __name__ == '__main__':
     hp['ach'] = 0.0001
 
     hp['usenmc'] = True  # confi, neural
-    hp['contbeta'] = 1  # valq: 0.5, 0.75, 1, 1.5
+    hp['contbeta'] = 0.9  # valq: 0.5, 0.75, 1, 1.5
 
     hp['stochlearn'] = True
 
