@@ -15,7 +15,7 @@ Agents were evaluated on their learning abilities on 5 tasks:
 - **obs**: Navigation past obstacles to 6 PAs over 47 session followed by navigation to 2 or 6 new PAs for 1 session 
 - **wkm**: Navigation to 6 PAs over 17 sessions followed by navigation to 2 or 6 new PAs but flavour cue is given only at the start of the trial followed by distractors
 
-2 types of agents were evaluated in all tasks and script begins with the following nomenclature:
+2 types of agents were evaluated in all tasks and script ends with the following nomenclature:
 - Symbolic schema agent                                                        (**_sym**)
 - Reservoir based neural agent                              (**_res**)
 
@@ -31,6 +31,23 @@ To install the necessary dependencies, create a virtual environment and run
 ```setup
 pip install requirements.txt
 ```
+
+### Training details
+
+Since the outcome of the paper is to demonstrate one-shot learning, there are no pretrained models except for the neural motor controller. 
+The learning potential of each agent can be observed by running the respective scripts.
+Training for each agent takes about 45 minutes for single reward task and 90 minutes for multiple paired association and 12PA task depending on the hardware specifications. 
+A GPU is not needed as the models are relatively small. 
+
+To use one processor to run X number of agents in sequence, set hp['platform'] = 'laptop' and hp['btstp'] = X.
+To run multiple agents in parallel, set hp['platform'] = 'server' and specify the number of processors available. 
+
+Hyperparameters can be found in get_default_hp function in ./backend_scripts/utils.py. 
+Specific hyperparameters can be found in each *.py script.
+
+E.g. if you would want the dmp_res.py agent to use the symbolic or neural motor controller, set hp['usesmc'] to True or False respectively.
+
+Each code generates figures that is saved to the Fig directory in working directory. 
 
 ## Experiments
 ### Associating multiple cues to coordinates
@@ -146,23 +163,6 @@ To train the hybrid Actor-Critic-Neural agent, set hp['contbeta'] = 0.7-0.9 wher
 python wkm_da_dist_res.py
 ```
 
-## Training details
-
-Since the outcome of the paper is to demonstrate one-shot learning, there are no pretrained models except for the neural motor controller. 
-The learning potential of each agent can be observed by running the respective scripts.
-Training for each agent takes about 45 minutes for single reward task and 90 minutes for multiple paired association and 12PA task depending on the hardware specifications. 
-A GPU is not needed as the models are relatively small. 
-
-To use one processor to run X number of agents in sequence, set hp['platform'] = 'laptop' and hp['btstp'] = X.
-To run multiple agents in parallel, set hp['platform'] = 'server' and specify the number of processors available. 
-
-Hyperparameters can be found in get_default_hp function in ./backend_scripts/utils.py. 
-Specific hyperparameters can be found in each *.py script.
-
-E.g. if you would want the dmp_res.py agent to use the symbolic or neural motor controller, set hp['usesmc'] to True or False respectively.
-
-Each code generates figures that is saved to the Fig directory in working directory. 
-
 
 ## Results
 
@@ -201,8 +201,9 @@ Our agents achieve the following one-shot learning performance when learning the
 
 
 
-## Contributing
-Please cite the relevant work if the code is used for academic purposes.
+## References
+If you have questions about the work or code, please drop me an [email](m_ganeshkumar@u.nus.edu) or visit my [website](https://mgkumar138.github.io/).
+Please cite the relevant work if the code is used for academic purposes. 
 
 ```citation
 @article{kumar2021one,
