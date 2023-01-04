@@ -102,21 +102,14 @@ if __name__ == '__main__':
     hp['gtau'] = 100  # 50/100
     hp['tau'] = 100
 
-    hp['gns'] = 0.05  # 0.1-0.25
     hp['stochlearn'] = True
     hp['glr'] = 7.5e-6  # 0.01/0.005 lms (e=0.008), 0.01/0.0085 EH (e=0.1/e=0.08) | 1e-5/5e-6
     hp['ach'] = 0.0005
-    hp['resns'] = 0.025
 
-    hp['chaos'] = 1.5
-    hp['cp'] = [1,0.1]
     hp['ract'] = 'relu'
 
     hp['ncues'] = 200
     hp['Rval'] = 1
-    hp['taua'] = 250
-    hp['taub'] = 100
-    hp['tolr'] = 1e-8
 
     hp['btstp'] = 24
 

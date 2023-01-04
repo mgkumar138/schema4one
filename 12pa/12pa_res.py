@@ -221,31 +221,19 @@ if __name__ == '__main__':
     hp['render'] = False  # visualise movement trial by trial
 
     allN = 2**np.arange(7,12)
-    allN = [1024]
+    #allN = [1024]
     pool = mp.Pool(processes=hp['cpucount'])
 
     for N in allN:
         hp['contbeta'] = 1
         hp['nrnn'] = N
+        hp['glr'] = 7.5e-6  # if N>2000 and stochlearn=True, reduce glr to 5e-6
 
-        if N > 1200:
-            for lr in [7.5e-6, 5e-6, 2.5e-6, 1e-6]:
-                hp['glr'] = lr
+        hp['exptname'] = '12pa_res_{}cb_{}sl_{}ach_{}glr_{}clr_{}tg_{}alr_{}R_{}dt_b{}_{}'.format(
+            hp['contbeta'], hp['stochlearn'], hp['ach'], hp['glr'], hp['clr'], hp['taug'],
+            hp['alr'], hp['Rval'], hp['tstep'], hp['btstp'], dt.monotonic())
 
-                hp['exptname'] = '12pa_res_{}cb_{}sl_{}ach_{}glr_{}clr_{}tg_{}alr_{}R_{}dt_b{}_{}'.format(
-                    hp['contbeta'], hp['stochlearn'], hp['ach'], hp['glr'], hp['clr'], hp['taug'],
-                    hp['alr'], hp['Rval'], hp['tstep'], hp['btstp'], dt.monotonic())
-
-                totdgr, totpi, totpath, allw = npapa_script(hp, pool)
-
-        else:
-            hp['glr'] = 7.5e-6
-
-            hp['exptname'] = '12pa_res_{}cb_{}sl_{}ach_{}glr_{}clr_{}tg_{}alr_{}R_{}dt_b{}_{}'.format(
-                hp['contbeta'], hp['stochlearn'], hp['ach'], hp['glr'], hp['clr'], hp['taug'],
-                hp['alr'], hp['Rval'], hp['tstep'], hp['btstp'], dt.monotonic())
-
-            totdgr, totpi, totpath, allw = npapa_script(hp, pool)
+        totdgr, totpi, totpath, allw = npapa_script(hp, pool)
 
     pool.close()
     pool.join()

@@ -157,28 +157,6 @@ if __name__ == '__main__':
     mpl.rcParams['axes.spines.top'] = False
     mpl.rcParams.update({'font.size': 8})
 
-    # f = plt.figure(figsize=(7,3))
-    # plt.axhline(y=0.6,color='r')
-    # col = ['tab:blue','tab:orange','tab:green']
-    # for c in range(hp['ncues']):
-    #     plt.subplot(2,3,c+1)
-    #     for i in range(3):
-    #         #plt.plot(trackg[c,:,i+3],alpha=0.2,color=col[i])
-    #         plt.plot(trackg[c, :,i],alpha=1,color=col[i])
-    #     plt.title('Cue {}'.format(c+1))
-    #     plt.axvline(2*1000/hp['tstep'], color='red', linestyle='--')
-    #     plt.axvline(6.5*1000/hp['tstep'],color='k',linestyle='--')
-    #     if c == 0 or c == 1:
-    #         plt.axvline(12*1000/hp['tstep'], color='magenta', linestyle='--')
-    #         plt.axvline(17*1000/hp['tstep'], color='k', linestyle='--')
-    # f.tight_layout()
-
-    #saveload('save', './vars_learn_unlearn_ach{}'.format(hp['ach'],btstp),  [allerr, trackg])
-    #plt.savefig('./Fig/{}_b{}.png'.format(exptname, btstp))
-    #savefig('{}_vert_b{}.png'.format(exptname, btstp),f)
-
-
-
     f = plt.figure(figsize=(8,3))
     col = ['tab:blue','tab:orange','tab:green']
     for c in range(hp['ncues']):

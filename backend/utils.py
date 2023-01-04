@@ -65,7 +65,7 @@ def get_default_hp(task, platform='laptop'):
         'taua': 250,  # reward decay time
         'taub': 100,  # reward rise time
         'Rval': 1,  # magnitude of reward disbursed
-        'tolr':1e-8,
+        'tolr':1e-8,  # stop trial after Rvalue * (1-totr) reached
         'go2s':1e-4,
 
         # input parameters
@@ -73,7 +73,7 @@ def get_default_hp(task, platform='laptop'):
         'npc':7,  # number of place cells across vertical and horizontal axes
         'cuescl': 3,  # gain of cue
         'punish': -0.0, #0
-        'obs': False,
+        'obs': False,  # presence of obstacles
 
         # actor parameters:
         'nact': 40,  # number of actor units
@@ -85,21 +85,21 @@ def get_default_hp(task, platform='laptop'):
         'actorw+': 1,  # excitatory scale for lateral connectivity
         'actorpsi': 20,  # lateral connectivity spread
         'tau': 100,  # membrane time constant for all cells
-        'awlim': [0.001,-0.001],
-        'alr': 0.00001,
-        'contbeta': 0.4,
+        'awlim': [0.001,-0.001],  # clip weights beyond limit
+        'alr': 0.00001,  # actor learning rate
+        'contbeta': 0.4,  # proportion of contribution from actor-critic (0) or NAVIGATE schema (1)
 
         # critic params
         'ncri': 1,  # number of critic
-        'criact': 'relu',
-        'crins': 1e-8,
-        'eulerm': 1,
-        'cwlim': [0.025,-0.025],
-        'clr': 0.0001,
+        'criact': 'relu',  # critic activation function
+        'crins': 1e-8,  # critic noise
+        'eulerm': 1,  # euler method to discretize continuous Temporal difference error, see Kumar et al. (2022) Cerebral cortex
+        'cwlim': [0.025,-0.025],  # clip critic weights beyond limit
+        'clr': 0.0001,  # critic learning rate
         'taug': 10000,  # 3000 (no obs)/10000 (obs)
 
         # reservoir parameters
-        'hidtype':'rnn',
+        'hidtype':'rnn',  # feedforward (ff) or reservoir (rnn)
         'ract': 'phia',  # reservoir activation function
         'recact': 'tanh',  # reservoir recurrent activiation function
         'chaos': 1.5,  # chaos gain lambda
@@ -116,33 +116,33 @@ def get_default_hp(task, platform='laptop'):
         'xywlim': [1, -1],
         'xytau': 200,  # eligibility trace to learn path integration
         'recallbeta': 1,  # recall beta within symbolic memory
-        'usenmc': True,
-        'learnxy': True,
+        'usenmc': True,  # use preptrained neural network motor controller (True) or symbolic function (False)
+        'learnxy': True,  # learn metric representation or use symbolic coordinates from environment
 
         # goal/sym params
         'gdecay': 'both',  # both for symbolic
         'gdist': 0.01,  # 0.01 for symbolic
-        'gns': 0.05,
-        'glr': 7.5e-6,
-        'gwlim': [1,-1],
-        'stochlearn': True,
+        'gns': 0.05,  # white noise for goal coordinates
+        'glr': 7.5e-6,  # learning rate for association network
+        'gwlim': [1,-1],  # clip weights
+        'stochlearn': True,  # use Exploratory Hebbian rule (True) or Perceptron rule (False) for one-shot association
         'ach': ach,  # Acetylecholine for synaptic depression single 0.0005, 6pa 0.0001, obs 0.00005
         'achsig': 0,  # if 0, ach is constant. else, ach secreted only when agent is near goal coordinate achsig=0.1
 
-        # working memory
-        'nmem':0,
-        'memns':0.1,
-        'mempsi':300,
+        # working memory/bump attractor
+        'nmem':0,  # number of bump neurons
+        'memns':0.1,  # bump attractor noise
+        'mempsi':300,  # tune width of activation
         'memw+':2,
         'memw-':-10,
         'membeta':2,
         'memact':'relu',
         'memrecact':'bump',
-        'bumpf':True,
-        'taum': 10000,
+        'bumpf':True,  # bump attractor neuron has self-recurrence (False) or not (True)
+        'taum': 10000,  # time constant for eligibility trace * DA. not necessary if using only DA to modulate hebbian rule
         'mwlim':[1,-1],
-        'memlearnrule':'da',
-        'ndistract':2,
+        'memlearnrule':'da',  # either use dopamine (da) or eligibility trace * dopamine (etda)
+        'ndistract':2,  # number of distractors during a trial
         'distfreq': 0.2,  # distractor presentation frequency
         'usegate': False,
 

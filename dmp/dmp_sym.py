@@ -10,6 +10,10 @@ import multiprocessing as mp
 from functools import partial
 from backend.model import SymACAgent
 from backend.utils import saveload, save_rdyn, get_default_hp, get_savings, plot_1pa_maps_dmp
+# import argparse
+# parser = argparse.ArgumentParser(description='Specify ContBeta')
+# parser.add_argument('--cb', type=str, default='0,1')
+# args = parser.parse_args()
 
 
 def singlepa_script(hp, pool):
@@ -219,7 +223,7 @@ def run_sym_1rloc_expt(estxy,e, b, env, hp, agent, sessions, alldyn, useweight=N
 
 if __name__ == '__main__':
 
-    hp = get_default_hp(task='dmp',platform='server')
+    hp = get_default_hp(task='dmp',platform='laptop')
 
     hp['btstp'] = 24
     hp['savefig'] = True
@@ -238,6 +242,8 @@ if __name__ == '__main__':
     hp['render'] = False  # visualise movement trial by trial
 
     allcb = [0,1]
+    #allcb = args.cb.split(',')
+
     pool = mp.Pool(processes=hp['cpucount'])
 
     for cb in allcb:
