@@ -26,7 +26,8 @@ the proportion of contribution between the schema networks (hp['contbeta'] = 1) 
 The code was created and tested on 
 - OS: Windows 10, Windows 11
 - Python version: Python 3.7
-To install the necessary dependencies, create a virtual environment and run
+
+To install the necessary dependencies, create a virtual environment using either venv or a new environment in conda (use pip in conda env) and run
 
 ```setup
 pip install -r requirements.txt
