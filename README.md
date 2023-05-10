@@ -51,7 +51,7 @@ Each code generates figures that is saved to the Fig directory in working direct
 
 ## Experiments
 ### Associating multiple cues to coordinates
-To train the networks to associate cues to coordinates, set working directory to ./assoc
+To train the networks to associate cues to coordinates, ensure working directory is /schema4one.
 
 To associate 200 cues, set hp['ncues'] = 200. 
 To use the Exploratory Hebbian rule, set hp['stochlearn'] = True and to use the Perceptron rule, set hp['stochlearn'] = False.
@@ -61,68 +61,68 @@ To change the activation function of the association layer, set hp['ract'] = 're
 
 To use the association network with a feedforward layer
 ```train
-python ff_cue_coord.py
+python assoc/ff_cue_coord.py
 ```
 To use the association network with a reservoir
 ```train
-python res_cue_coord.py
+python assoc/res_cue_coord.py
 ```
 
 To learn and unlearn the association using reward modulation and acetylcholine modulation using a network with a feedforward layer
 ```train
-python ff_learn_unlearn.py
+python assoc/ff_learn_unlearn.py
 ```
 To learn and unlearn the association using reward modulation and acetylcholine modulation using a network with a reservoir
 ```train
-python res_learn_unlearn.py
+python assoc/res_learn_unlearn.py
 ```
 
 
 ### Single displaced location task
 
-To run each agent described in the paper in the single displaced location task, set working directory to ./single_reward
+To run each agent described in the paper in the single displaced location task, ensure working directory is /schema4one.
 
 To use either the Actor-Critic or the Symbolic schema agent, set hp['contbeta'] = 0 or 1 respectively
 ```train
-python dmp_sym.py
+python dmp/dmp_sym.py
 ```
 To use only the Neural schema agent, set hp['contbeta'] = 1:
 ```train
-python dmp_res.py
+python dmp/dmp_res.py
 ```
 
 ### Single goal with obstacle task
 
-To run each agent described in the paper in the single goal with obstacle task, set working directory to ./1pa
+To run each agent described in the paper in the single goal with obstacle task, ensure working directory is /schema4one.
 
 To use either the Actor-Critic, Symbolic, or hybrid Actor-Critic-Symbolic agent, set hp['contbeta'] = 0 or 1 or 0.3 respectively:
 ```train
-python 1pa_sym.py
+python 1pa/center_sym.py
 ```
 To use either the Neural schema or the hybrid Actor-Critic-Neural agent, set hp['contbeta'] = 1 or 0.3 respectively:
 ```train
-python 1pa_res.py
+python 1pa/center_res.py
 ```
 
 ### Multiple paired association task: 20 sessions of OPA, 2 sessions of OPA, 2NPA, 6NPA, 20 sessions of NM, 2 sessions of 6NPANM 
 
-To run each agent in the multiple paired association task, set working directory to ./6pa
+To run each agent in the multiple paired association task, ensure working directory is /schema4one.
 
 To use either the Actor-Critic or the Symbolic schema agent, set hp['contbeta'] = 0 or 1 respectively
 ```train
-python 6pa_sym.py
+python 6pa/6pa_sym.py
 ```
 To use only the Neural schema agent, set hp['contbeta'] = 1:
 ```train
-python 6pa_res.py
+python 6pa/6pa_res.py
 ```
 
 ### One-shot learning of 12 novel paired associates 
-To run each agent in the 12NPA task, set working directory to ./other_pa
+To run each agent in the 12NPA task, ensure working directory is /schema4one.
 
 To use either the Actor-Critic or the Symbolic schema agent, set hp['contbeta'] = 0 or 1 respectively
 ```train
-python 12pa_sym.py
+python 12pa/12pa_sym.py
 ```
 
 To use the Exploratory Hebbian rule, set hp['stochlearn'] = True and to use the Perceptron rule, set hp['stochlearn'] = False.
@@ -130,29 +130,29 @@ To change the size of the association network, set hp['nrnn'] with the number of
 
 To use the Neural schema agent with a feedforward layer based association network 
 ```train
-python 12pa_ff.py
+python 12pa/12pa_ff.py
 ```
 To use the Neural schema agent with a reservoir based association network
 ```train
-python 12pa_res.py
+python 12pa/12pa_res.py
 ```
 
 ### One-shot learning of 2NPA and 6NPA while navigating past obstacles
 
-To run each agent described in the paper in the multiple paired association task with obstacle, set working directory to ./obs
+To run each agent described in the paper in the multiple paired association task with obstacle, ensure working directory is /schema4one.
 
 To use either the Actor-Critic, Symbolic, or hybrid Actor-Critic-Symbolic agent, set hp['contbeta'] = 0 or 1 or 0.4 respectively:
 ```train
-python obs_sym.py
+python obs/obs_sym.py
 ```
 To use either the Neural schema or the hybrid Actor-Critic-Neural agent, set hp['contbeta'] = 1 or 0.4 respectively:
 ```train
-python obs_res.py
+python obs/obs_res.py
 ```
 
 ### Learning to gate working memory for one-shot learning
 
-To run each agent described in the paper in multiple paired association task with transient cue and multiple distractors, set working directory to ./obs
+To run each agent described in the paper in multiple paired association task with transient cue and multiple distractors, ensure working directory is /schema4one.
 
 To introduce none, one or two distractors during a trial, set hp['ndistract'] = 0 or 1 or 2. The number of distractors can be increased to increase task difficulty. 
 To set the frequency (Hz) of distractor presentation, change hp['distfreq'] where default is 0.2.
@@ -160,7 +160,7 @@ To change the learning rate for the gating mechanism, set hp['mlr'] where defaul
 
 To train the hybrid Actor-Critic-Neural agent, set hp['contbeta'] = 0.7-0.9 where default is 0.8
 ```train
-python wkm_da_dist_res.py
+python wkm/wkm_da_dist_res.py
 ```
 
 
@@ -202,7 +202,7 @@ Our agents achieve the following one-shot learning performance when learning the
 
 
 ## References
-If you have questions about the work or code, please drop me an [email](m_ganeshkumar@u.nus.edu) or visit my [website](https://mgkumar138.github.io/).
+If you have questions about the work or code, please drop me an [email](m_ganeshkumar@u.nus.edu) or visit [website](https://mgkumar138.github.io/).
 Please cite the relevant work if the code is used for academic purposes. 
 
 ```citation
