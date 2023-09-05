@@ -1,6 +1,6 @@
 # One-shot learning of multiple new paired associations using biologically plausible schemas
 
-This repository contains the code to obtain the results described in the paper (Instructions to run the code is given below).
+This repository contains the code to obtain the results described in the [paper](https://arxiv.org/abs/2106.03580)  (Instructions to run the code is given below).
       
 The main outcome of the paper is to propose a biologically plausible reinforcement learning model that demonstrates one-shot learning
 of multiple flavour cue - goal location paired associations, like the rodent experiment (Tse et al. 2007). 
@@ -207,10 +207,10 @@ If you have questions about the work or code, please drop me an [email](m_ganesh
 Please cite the relevant work if the code is used for academic purposes. 
 
 ```citation
-@article{kumar2021one,
-  title={One-shot learning of paired associations by a reservoir computing model with Hebbian plasticity},
+@article{kumar2023oneshot,
+  title={One-shot learning of paired association navigation with biologically plausible schemas},
   author={Kumar, M Ganesh and Tan, Cheston and Libedinsky, Camilo and Yen, Shih-Cheng and Tan, Andrew Yong-Yi},
   journal={arXiv preprint arXiv:2106.03580},
-  year={2021}
+  year={2023}
 }
 ```
