@@ -32,7 +32,7 @@ def run_association(hp,b):
         for i, p in enumerate(phase):
             err = []
             if i == 1:
-                totaltrials = c+1
+                totaltrials = c+1  # if recall, evaluate all previous cues
             else:
                 totaltrials = 1
 
@@ -60,13 +60,14 @@ def run_association(hp,b):
                     rfr = ff.process(cue[None, :])
                     gt = target.recall(rfr)
 
-                    trackg.append(gt)
-                    if t > 1 * 1000 // hp['tstep']:
+                    trackg.append(gt)  # record activity
+
+                    if t > 1 * 1000 // hp['tstep']:  # record performance after 1 second
                         err.append(np.mean((truegoal - gt) ** 2))
 
                     if p == 'associate':
 
-                        if t == 1*1000//hp['tstep']: # start associating after 1 second
+                        if t == 1*1000//hp['tstep']:  # red line, reward given, start associating after 1 second
                             R = hp['Rval']
                         else:
                             R = 0
@@ -96,7 +97,7 @@ if __name__ == '__main__':
 
     hp = get_default_hp('6pa',platform='server')
 
-    hp['time'] = 6
+    hp['time'] = 11
     hp['tstep'] = 20
     hp['nrnn'] = 1000
     hp['gtau'] = 100  # 50/100
@@ -104,7 +105,7 @@ if __name__ == '__main__':
 
     hp['stochlearn'] = True
     hp['glr'] = 7.5e-6  # 0.01/0.005 lms (e=0.008), 0.01/0.0085 EH (e=0.1/e=0.08) | 1e-5/5e-6
-    hp['ach'] = 0.0005
+    hp['ach'] = 0.000
 
     hp['ract'] = 'relu'
 
@@ -117,9 +118,9 @@ if __name__ == '__main__':
     print(exptname)
 
     allN = 2**np.arange(7,12)
-    #allN = [1000]
+    allN = [1024]
     allerr = []
-
+    allrg = []
     pool = mp.Pool(processes=hp['btstp'])
 
     for N in allN:
@@ -129,21 +130,26 @@ if __name__ == '__main__':
         x = pool.map(partial(run_association, hp), np.arange(hp['btstp']))
 
         toterr = []
-        tg = []
+        totg = []
         for b in range(hp['btstp']):
             err, rg = x[b]
             toterr.append(err[None,:])
-            tg.append(rg[None,:])
+            totg.append(rg[None,:])
 
         toterr = np.vstack(toterr)  # N X associate/recall X Ncues
         allerr.append(toterr[None,:])
+        totg = np.vstack(totg)
+        allrg.append(totg[None,:])
+
+        saveload('save', 'vars_{}_{}'.format(exptname,N), [toterr, totg])
 
     pool.close()
     pool.join()
 
     allerr = np.vstack(allerr)
+    allrg = np.vstack(allrg)
     print(np.mean(np.mean(allerr[:,:,1],axis=1),axis=1))
-    saveload('save', 'vars_{}'.format(exptname),  [allerr, rg])
+    saveload('save', 'allvars_{}'.format(exptname), [allerr, allrg])
 
     # plot
     f = plt.figure()

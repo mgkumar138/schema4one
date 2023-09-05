@@ -158,7 +158,7 @@ def get_default_hp(task, platform='laptop'):
         hp['cpucount'] = 1
     elif hp['platform'] == 'server':
         matplotlib.use('tKAgg')
-        hp['cpucount'] = 4 #mp.cpu_count()
+        hp['cpucount'] = 2 #mp.cpu_count()
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     elif hp['platform'] == 'gpu':
         matplotlib.use('tKAgg')

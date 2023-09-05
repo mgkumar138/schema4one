@@ -32,7 +32,7 @@ def run_association(hp,b):
         for i, p in enumerate(phase):
             err = []
             if i == 1:
-                totaltrials = c+1
+                totaltrials = c+1  # if recall, evaluate all previous cues
             else:
                 totaltrials = 1
 
@@ -61,13 +61,14 @@ def run_association(hp,b):
                     rfr = res.process(cue[None, :])
                     gt = target.recall(rfr)
 
-                    trackg.append(gt)
-                    if t > 1 * 1000 // hp['tstep']:
+                    trackg.append(gt)  # record activity
+
+                    if t > 1 * 1000 // hp['tstep']:  # record performance after 1 second
                         err.append(np.mean((truegoal - gt) ** 2))
 
                     if p == 'associate':
 
-                        if t == 1*1000//hp['tstep']: # start associating after 1 second
+                        if t == 1*1000//hp['tstep']:  # red line, reward given, start associating after 1 second
                             R = hp['Rval']
                         else:
                             R = 0
@@ -97,23 +98,23 @@ if __name__ == '__main__':
 
     hp = get_default_hp('6pa',platform='server')
 
-    hp['time'] = 6
+    hp['time'] = 11
     hp['tstep'] = 20
     hp['nrnn'] = 1000
     hp['gtau'] = 100  # 50/100
     hp['tau'] = 100
 
     hp['gns'] = 0.05  # 0.1-0.25
-    hp['stochlearn'] = True
+    hp['stochlearn'] = True  # True - EH, False - LMS
     hp['glr'] = 7.5e-6  # 0.01/0.005 lms (e=0.008), 0.01/0.0085 EH (e=0.1/e=0.08) | 1e-5/5e-6
-    hp['ach'] = 0.0005
+    hp['ach'] = 0.000
     hp['resns'] = 0.025
 
     hp['chaos'] = 1.5
     hp['cp'] = [1,0.1]
     hp['ract'] = 'relu'
 
-    hp['ncues'] = 10
+    hp['ncues'] = 10  # 200
     hp['Rval'] = 1
     hp['taua'] = 250
     hp['taub'] = 100
@@ -125,9 +126,9 @@ if __name__ == '__main__':
     print(exptname)
 
     allN = 2**np.arange(7,12)
-    #allN = [1000]
+    allN = [1024]
     allerr = []
-
+    allrg = []
     pool = mp.Pool(processes=hp['btstp'])
 
     for N in allN:
@@ -137,21 +138,26 @@ if __name__ == '__main__':
         x = pool.map(partial(run_association, hp), np.arange(hp['btstp']))
 
         toterr = []
-        tg = []
+        totg = []
         for b in range(hp['btstp']):
             err, rg = x[b]
             toterr.append(err[None,:])
-            tg.append(rg[None,:])
+            totg.append(rg[None,:])
 
         toterr = np.vstack(toterr)  # N X associate/recall X Ncues
         allerr.append(toterr[None,:])
-        saveload('save', 'vars_{}'.format(exptname), [np.vstack(allerr), rg])
+        totg = np.vstack(totg)
+        allrg.append(totg[None,:])
+
+        saveload('save', 'vars_{}_{}'.format(exptname,N), [toterr, totg])
 
     pool.close()
     pool.join()
 
     allerr = np.vstack(allerr)
+    allrg = np.vstack(allrg)
     print(np.mean(np.mean(allerr[:,:,1],axis=1),axis=1))
+    saveload('save', 'allvars_{}'.format(exptname), [allerr, allrg])
 
     # plot
     f = plt.figure()
@@ -164,3 +170,13 @@ if __name__ == '__main__':
     plt.ylabel('Recall MSE')
     #plt.title('Avg MSE {:.3g}'.format(np.ronp.mean(np.mean(allerr[:,:,1],axis=1),axis=1)))
     plt.savefig('{}.png'.format(exptname))
+
+    # [toterr_lms, totg_lms] = saveload('load', './assoc/vars_res_relu_Falsesl_10c_24b_1024', 1)
+    # [toterr_eh, totg_eh] = saveload('load', './assoc/vars_res_relu_Truesl_10c_24b_1024', 1)
+    #
+    # #
+    # # [allerr, allrg] = saveload('load', './assoc/allvars_{}'.format(exptname), 1)
+    #
+    # [allerr_lms, allrg_lms] = saveload('load', './gen_fig/Data/assoc/vars_res_phia_Falsesl_200c_24b', 1)
+    # [allerr_eh, allrg_eh] = saveload('load', './gen_fig/Data/assoc/vars_res_phia_Truesl_200c_24b', 1)
+
