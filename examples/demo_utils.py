@@ -5,7 +5,6 @@ import tensorflow as tf
 import matplotlib
 import os
 
-
 def run_hebagent_multiplepa_expt(mtype, env, agent, sessions, noreward, useweight=None):
     env.make(mtype=mtype, noreward=noreward)
     print(f"{mtype} env created. Training ...")
@@ -1152,3 +1151,17 @@ def choose_activation(actname, hp=None):
         act = no_activation
     return act
 
+def saveload(opt, name, variblelist):
+    if opt == 'save':
+        name = name + '.pickle'
+        with open(name, 'wb') as f:  # Python 3: open(..., 'wb')
+            pickle.dump(variblelist, f)
+            print('Data Saved')
+            f.close()
+
+    if opt == 'load':
+        with open(name, 'rb') as f:  # Python 3: open(..., 'rb')
+            var = pickle.load(f)
+            print('Data Loaded')
+            f.close()
+        return var
