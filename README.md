@@ -8,7 +8,7 @@ The task comprises of a continuous square arena in which agents start from eithe
 navigate to the goal location that is associated to the flavour cue given during that trial. Agents are only rewarded
 when they reach the correct goal location.  
 
-A demo of the Neural Schema agent gradually learning the Original Paired Associations (OPA) task and subsequently solving New Paired Associations (NPA) in one-shot can be found in the ./examples/bioplaus_oneshot_multiplePA_demo.ipynb folder as a Jupyter Notebook. 
+A demo of the Neural Schema agent gradually learning the Original Paired Associations (OPA) task and subsequently solving New Paired Associations (NPA) in one-shot can be found in the [./examples/bioplaus_oneshot_multiplePA_demo.ipynb](https://github.com/mgkumar138/schema4one/blob/main/examples/bioplaus_oneshot_multiPA_demo.ipynb) folder as a Jupyter Notebook. 
 
 Agents were evaluated on their learning abilities on 5 tasks:
 - **dmp**: Navigation to a single goal that is displaced to a new location every 4 trials
