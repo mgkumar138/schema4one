@@ -1,12 +1,14 @@
 # One-shot learning of multiple new paired associations using biologically plausible schemas
 
-This repository contains the code to obtain the results described in the [paper](https://arxiv.org/abs/2106.03580)  (Instructions to run the code is given below).
+This repository contains the full code to obtain the results described in the [paper](https://arxiv.org/abs/2106.03580)  (Instructions to run the code is given below).
       
 The main outcome of the paper is to propose a biologically plausible reinforcement learning model that demonstrates one-shot learning
 of multiple flavour cue - goal location paired associations, like the rodent experiment (Tse et al. 2007). 
 The task comprises of a continuous square arena in which agents start from either the north, south, east or west and have to 
 navigate to the goal location that is associated to the flavour cue given during that trial. Agents are only rewarded
 when they reach the correct goal location.  
+
+A demo of the Neural Schema agent gradually learning the Original Paired Associations (OPA) task and subsequently solving New Paired Associations (NPA) in one-shot can be found in the ./examples/bioplaus_oneshot_multiplePA_demo.ipynb folder as a Jupyter Notebook. 
 
 Agents were evaluated on their learning abilities on 5 tasks:
 - **dmp**: Navigation to a single goal that is displaced to a new location every 4 trials
