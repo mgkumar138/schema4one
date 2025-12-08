@@ -13,7 +13,7 @@ from backend.maze import Maze
 from backend.utils import get_default_hp, save_rdyn, saveload
 import multiprocessing as mp
 from functools import partial
-
+import argparse
 
 def multiplepa_script(hp, pool):
     exptname = hp['exptname']
@@ -235,6 +235,30 @@ def run_hebagent_multiplepa_expt(b, mtype, env, hp, agent, alldyn, sessions, use
 
 if __name__ == '__main__':
 
+    def str2bool(v):
+        if isinstance(v, bool): return v
+        if v.lower() in ("yes", "true", "t", "y", "1"): return True
+        if v.lower() in ("no", "false", "f", "n", "0"): return False
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+    parser = argparse.ArgumentParser(description='Run observation symmetry experiment')
+    parser.add_argument('--cb', type=float, default=1.0, help='beta_control')
+    parser.add_argument('--seed', type=int, default=2025, help='random seed')
+    parser.add_argument('--usenmc', type=str2bool, default=True, help='use neural motor controller (bool)')
+    args = parser.parse_args()
+
+    args, unknown = parser.parse_known_args()
+
+    np.random.seed(args.seed)
+
+    # save data
+    data_dir = '/n/netscratch/pehlevan_lab/Lab/mgk/schema/cb_data_glr'
+    os.makedirs(data_dir, exist_ok=True)
+
+    print("obs_sym:")
+    for arg in vars(args):
+        print(f"  {arg}: {getattr(args, arg)}")
+
     hp = get_default_hp(task='obs', platform='laptop')
 
     hp['btstp'] = 1
@@ -246,14 +270,14 @@ if __name__ == '__main__':
     hp['clr'] = 0.0001  # 0.0001
     hp['taug'] = 10000  # 10000
 
-    hp['usenmc'] = False  # confi, neural
+    hp['usenmc'] = args.usenmc  # confi, neural
 
     ''' env param'''
     hp['Rval'] = 1
     hp['obs'] = True
     hp['render'] = False  # visualise movement trial by trial
 
-    allcb = [0.4]
+    allcb = [args.cb]
     pool = mp.Pool(processes=hp['cpucount'])
 
     for cb in allcb:
@@ -267,3 +291,7 @@ if __name__ == '__main__':
 
     pool.close()
     pool.join()
+
+    # save data
+
+    np.savez(f'{data_dir}/obs_sym_cb{args.cb}_{args.seed}s_{args.usenmc}nmc.npz', totlat=totlat, totdgr=totdgr)

@@ -10,10 +10,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time as dt
 from backend.maze import Maze
-from backend.utils import get_default_hp, save_rdyn, saveload
+from backend.utils import get_default_hp, save_rdyn, saveload, plot_single_map
 import multiprocessing as mp
 from functools import partial
-
+import argparse
 
 def multiplepa_script(hp, pool):
     exptname = hp['exptname']
@@ -32,24 +32,26 @@ def multiplepa_script(hp, pool):
     for b in range(btstp):
         totlat[b], totdgr[b], totpi[b], mvpath, allw, alldyn = x[b]
 
-    plt.figure(figsize=(15, 8))
-    plt.gcf().text(0.01, 0.01, exptname, fontsize=10)
-    plt.subplot(331)
-    plt.title('Latency')
-    plt.errorbar(x=np.arange(totlat.shape[1]), y =np.mean(totlat, axis=0), yerr=np.std(totlat,axis=0), marker='s')
+    f=plt.figure(figsize=(15, 8))
+    f.text(0.01, 0.01, exptname, fontsize=10)
+
+    ax = plt.subplot2grid((7, 7), (0, 0), colspan=3, rowspan=1)
+    ax.set_title('Latency')
+    ax.errorbar(x=np.arange(totlat.shape[1]), y =np.mean(totlat, axis=0), yerr=np.std(totlat,axis=0), marker='s')
     #plt.plot(np.mean(totlat,axis=0),linewidth=3)
 
-    plt.subplot(332)
-    plt.bar(np.arange(6),np.mean(totdgr,axis=0))
-    plt.axhline(100/6,color='r',linestyle='--')
-    plt.title(np.round(np.mean(totpi,axis=0),1))
+    ax1 = plt.subplot2grid((7, 7), (0, 4), colspan=3, rowspan=1)
+    ax1.bar(np.arange(6),np.mean(totdgr,axis=0))
+    ax1.axhline(100/6,color='r',linestyle='--')
+    ax1.set_title(np.round(np.mean(totpi,axis=0),1))
 
+    sess = list(alldyn[1].keys())
     env = Maze(hp)
     col = ['b', 'g', 'r', 'y', 'm', 'k']
     for i,m in enumerate(['train','train','train','opa', '2npa', '6npa']):
-
-        plt.subplot(3, 3, i+4)
-        plt.title('{}'.format(m))
+        ss = sess[i * 6:i * 6 + 6]
+        plt.subplot(7,7, i*7+8)
+        plt.ylabel('{}'.format(m))
         env.make(m)
         k = mvpath[i]
         for pt in range(len(mvpath[2])):
@@ -62,14 +64,26 @@ def multiplepa_script(hp, pool):
                 plt.gcf().gca().add_artist(circle)
         plt.axis((-env.au / 2, env.au / 2, -env.au / 2, env.au / 2))
         plt.gca().set_aspect('equal', adjustable='box')
+        plt.xticks([])
+        plt.yticks([])
+
+        for c in ss:
+            cue = int(c[-1])-1
+            if cue == 6:
+                cue = 0
+            elif cue == 7:
+                cue = 5
+            plt.subplot(7, 7, i * 7 + 9 + cue)
+            plt.ylabel('C{}'.format(c[-1]))
+            plot_single_map(np.vstack(alldyn[1][c]),np.vstack(alldyn[2][c]), k[cue],hp)
+    plt.show()
 
     print(exptname)
 
-    plt.tight_layout()
-
     if hp['savefig']:
-        plt.savefig('./Fig/fig_{:.2g}o_{:.2g}n_{:.2g}m_{}.png'.format(
+        f.savefig('./Fig/fig_{:.2g}o_{:.2g}n_{:.2g}m_{}.png'.format(
             np.mean(totdgr,axis=0)[3],np.mean(totdgr,axis=0)[4],np.mean(totdgr,axis=0)[5], exptname))
+
     if hp['savegenvar']:
         saveload('save', './Data/genvars_{:.2g}o_{:.2g}n_{:.2g}m_{}.png'.format(
             np.mean(totdgr,axis=0)[3],np.mean(totdgr,axis=0)[4],np.mean(totdgr,axis=0)[5], exptname), [totlat, totdgr, totpi])
@@ -78,7 +92,8 @@ def multiplepa_script(hp, pool):
 
 
 def setup_hebagent_multiplepa_expt(hp,b):
-    from backend.model_np import SymACAgent
+    from backend.model_np import ResACAgent
+
     print('Agent {} started training ...'.format(b))
     exptname = hp['exptname']
     print(exptname)
@@ -103,15 +118,15 @@ def setup_hebagent_multiplepa_expt(hp,b):
     mvpath = np.zeros([6, 6, env.normax, 2])
 
     start = dt.time()
-    agent = SymACAgent(hp=hp)
+    agent = ResACAgent(hp=hp)
 
     # Start Training
     lat[:trsess], mvpath[:3], trw, dgr[:3], pi[:3] = run_hebagent_multiplepa_expt(b, 'train',env,hp,agent,alldyn, trsess,noreward=nonrp)
 
     # Start Evaluation
-    lat[trsess:trsess + evsess], mvpath[3], opaw, dgr[3], pi[3] = run_hebagent_multiplepa_expt(b,'opa', env, hp,agent, alldyn, evsess, trw, noreward=[nonrp[0]])
-    lat[trsess + evsess:trsess + evsess * 2], mvpath[4],  npaw, dgr[4], pi[4] = run_hebagent_multiplepa_expt(b,'2npa', env, hp, agent, alldyn, evsess, trw, noreward=[nonrp[0]])
-    lat[trsess + evsess * 2:], mvpath[5], nmw, dgr[5], pi[5] = run_hebagent_multiplepa_expt(b, '6npa', env, hp, agent, alldyn, evsess, trw, noreward=[nonrp[0]])
+    lat[trsess:trsess + evsess], mvpath[3], opaw, dgr[3], pi[3] = run_hebagent_multiplepa_expt(b,'opa', env, hp,agent, alldyn, evsess, trw, noreward=[2])
+    lat[trsess + evsess:trsess + evsess * 2], mvpath[4],  npaw, dgr[4], pi[4] = run_hebagent_multiplepa_expt(b,'2npa', env, hp, agent, alldyn, evsess, trw, noreward=[2])
+    lat[trsess + evsess * 2:], mvpath[5], nmw, dgr[5], pi[5] = run_hebagent_multiplepa_expt(b, '6npa', env, hp, agent, alldyn, evsess, trw, noreward=[2])
 
     allw = [trw, opaw, npaw, nmw]
 
@@ -139,17 +154,24 @@ def run_hebagent_multiplepa_expt(b, mtype, env, hp, agent, alldyn, sessions, use
     if useweight:
         agent.set_weights(useweight)
 
+    mdlw = agent.get_weights()
+    if hp['platform'] == 'laptop' or b == 0:
+        print('Coord max {:.3g}, min {:.3g}'.format(np.max(mdlw[0]), np.min(mdlw[0])))
+        print('Goal max {:.3g}, min {:.3g}'.format(np.max(mdlw[5]), np.min(mdlw[5])))
+        print('Critic max {:.3g}, min {:.3g}'.format(np.max(mdlw[1]), np.min(mdlw[1])))
+        print('Actor max {:.3g}, min {:.3g}'.format(np.max(mdlw[2]), np.min(mdlw[2])))
+
     for t in range(sessions * len(env.rlocs)):
         # Reset environment, actor dynamics
         state, cue, reward, done = env.reset(trial=t)
         agent.state_reset()
-
+        trackg = []
         if t%len(env.rlocs)==0:
             sesslat = []
 
         while not done:
 
-            # Plasticity switched off when trials are non-rewarded & during cue presentation (60s)
+            # Plasticity switched off during non-rewarded probe trials
             if t in env.nort:
                 plasticity = False
             else:
@@ -157,22 +179,24 @@ def run_hebagent_multiplepa_expt(b, mtype, env, hp, agent, alldyn, sessions, use
 
             cpc, cue, rfr = agent.see(state=state, cue=cue, startbox=env.startbox)
 
-            value, xy, goal = agent.estimate_value_position_goal(cpc=cpc,cue=cue,rfr=rfr)
+            value, xy, goal, mem = agent.estimate_value_position_goal_memory_td(cpc=cpc,cue=cue,rfr=rfr)
 
-            tderr, tdxy = agent.learn(reward=reward,self_motion=env.dtxy, cpc=cpc, rfr=rfr, plasticity=plasticity)
+            tderr, tdxy = agent.learn(reward=reward, self_motion=env.dtxy, cpc=cpc, cue=cue, rfr=rfr, xy=xy, goal=goal,
+                                      plasticity=plasticity)
 
             action, rho = agent.get_action(rfr=rfr, xy=xy, goal=goal)
 
             # Use action on environment, ds4r: distance from reward
             state, cue, reward, done, ds4r = env.step(action)
 
-            agent.learn_cue_location(cue=cue, xy=xy, goal=goal, reward=reward, done=done,plasticity=plasticity)
-
+            # save lsm & actor dynamics for analysis
             if t in env.nort:
-                #save_rdyn(alldyn[0], mtype, t, env.startpos, env.cue, rfr)  # rho
-                save_rdyn(alldyn[1], mtype, t, env.startpos, env.cue, rho) # rho
-                save_rdyn(alldyn[2], mtype, t, env.startpos, env.cue, np.concatenate([value, tderr],axis=1))  # rho
+                # save_rdyn(alldyn[0], mtype, t, env.startpos, env.cue, rfr)
+                save_rdyn(alldyn[1], mtype, t, env.startpos, env.cue, rho)
+                save_rdyn(alldyn[2], mtype, t, env.startpos, env.cue, np.concatenate([value, tderr],axis=1))
                 save_rdyn(alldyn[3], mtype, t, env.startpos, env.cue, goal)
+            trackg.append(goal)
+
             if done:
                 env.render()
                 break
@@ -199,14 +223,15 @@ def run_hebagent_multiplepa_expt(b, mtype, env, hp, agent, alldyn, sessions, use
 
         if hp['platform'] != 'server' or b == 0:
             # Trial information
+            mdlw = agent.get_weights()
             print('T {} | C {} | S {} | D {:4.3f} | st {} | g{} | as {} | Dgr {}'.format(
                 t, np.argmax(env.cue)+1, env.i // (1000 // env.tstep), ds4r, env.startpos[0], np.round(goal,3),
                 np.round(np.mean(agent.actor.avgspeed),3), np.round(dgr,1)))
 
             # Session information
             if (t + 1) % 6 == 0:
-                print('################## {} Session {}/{}, Avg Steps {:5.1f}, PI {} ################'.format(
-                    mtype, (t + 1) // 6, sessions, lat[((t + 1) // 6) - 1], env.sessr))
+                print('############## {} Session {}/{}, Avg Steps {:5.1f}, ##############'.format(
+                    mtype, (t + 1) // 6, sessions, lat[((t + 1) // 6) - 1]))
                 mdlw = agent.get_weights()
                 print('Critic max {:.3g}, min {:.3g}'.format(np.max(mdlw[1]), np.min(mdlw[1])))
                 print('Actor max {:.3g}, min {:.3g}'.format(np.max(mdlw[2]), np.min(mdlw[2])))
@@ -223,17 +248,37 @@ def run_hebagent_multiplepa_expt(b, mtype, env, hp, agent, alldyn, sessions, use
         dgr = np.mean(dgr)
 
     mdlw = agent.get_weights()
-    if hp['platform'] == 'laptop' or b == 0:
-        print('Critic max {:.3f}, min {:.3f}'.format(np.max(mdlw[1]), np.min(mdlw[1])))
-        print('Actor max {:.3f}, min {:.3f}'.format(np.max(mdlw[2]), np.min(mdlw[2])))
-        print('Coord max {:.3f}, min {:.3f}'.format(np.max(mdlw[0]), np.min(mdlw[0])))
 
-    if hp['platform'] == 'server':
-        print('Agent {} {} training dig rate: {}'.format(b, mtype, dgr))
+    print('Agent {} {} training dig rate: {}'.format(b, mtype, dgr))
     return lat, mvpath, mdlw, dgr, sesspi
 
 
 if __name__ == '__main__':
+
+
+    def str2bool(v):
+        if isinstance(v, bool): return v
+        if v.lower() in ("yes", "true", "t", "y", "1"): return True
+        if v.lower() in ("no", "false", "f", "n", "0"): return False
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+    parser = argparse.ArgumentParser(description='Run observation symmetry experiment')
+    parser.add_argument('--cb', type=float, default=1.0, help='beta_control')
+    parser.add_argument('--seed', type=int, default=2025, help='random seed')
+    parser.add_argument('--usenmc', type=str2bool, default=True, help='use neural motor controller (bool)')
+    parser.add_argument('--stochlearn', type=str2bool, default=True, help='stochastic learning (bool)')
+    parser.add_argument('--glr', type=float, default=1e-4, help='goal learning rate')
+    args = parser.parse_args()
+
+    np.random.seed(args.seed)
+
+    # save data
+    data_dir = '/n/netscratch/pehlevan_lab/Lab/mgk/schema/cb_data_glr'
+    os.makedirs(data_dir, exist_ok=True)
+
+    print("obs_res:")
+    for arg in vars(args):
+        print(f"  {arg}: {getattr(args, arg)}")
 
     hp = get_default_hp(task='obs', platform='laptop')
 
@@ -242,28 +287,34 @@ if __name__ == '__main__':
     hp['savegenvar'] = False
     hp['savevar'] = False
 
+    hp['hidtype'] = 'rnn'
+
     hp['alr'] = 0.000005  # reduce for obs
     hp['clr'] = 0.0001  # 0.0001
     hp['taug'] = 10000  # 10000
-
-    hp['usenmc'] = False  # confi, neural
+    hp['glr'] = args.glr  # 1e-4
 
     ''' env param'''
     hp['Rval'] = 1
     hp['obs'] = True
     hp['render'] = False  # visualise movement trial by trial
 
-    allcb = [0.4]
+    hp['usenmc'] = args.usenmc  # confi, neural
+    hp['stochlearn'] = args.stochlearn  # stochastic learning
+
+    allcb = [args.cb]
     pool = mp.Pool(processes=hp['cpucount'])
 
     for cb in allcb:
         hp['contbeta'] = cb
 
-        hp['exptname'] = 'obs_sym_{}cb_{}mb_{}oe_{}gd_{}clr_{}tg_{}alr_{}N_{}R_{}dt_b{}_{}'.format(
-            hp['contbeta'], hp['mcbeta'], hp['omite'], hp['gdecay'], hp['clr'], hp['taug'], hp['alr'], hp['nrnn'],
+        hp['exptname'] = 'obs_res_{}cb_{}glr_{}sl_{}ach_{}clr_{}tg_{}alr_{}N_{}R_{}dt_b{}_{}'.format(
+            hp['contbeta'], hp['glr'], hp['stochlearn'],hp['ach'], hp['clr'], hp['taug'],hp['alr'], hp['nrnn'],
             hp['Rval'], hp['tstep'], hp['btstp'], dt.monotonic())
 
-        totlat, totdgr, totpi, mvpath, allw, alldyn = multiplepa_script(hp,pool)
+        totlat, totdgr, totpi, mvpath, allw, alldyn = multiplepa_script(hp, pool)
 
     pool.close()
     pool.join()
+
+    np.savez(f'{data_dir}/obs_res_cb{args.cb}_{args.seed}s_{args.usenmc}nmc_{args.stochlearn}sl_{hp["glr"]}glr.npz', totlat=totlat, totdgr=totdgr)

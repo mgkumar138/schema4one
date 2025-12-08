@@ -123,7 +123,7 @@ def get_default_hp(task, platform='laptop'):
         'gdecay': 'both',  # both for symbolic
         'gdist': 0.01,  # 0.01 for symbolic
         'gns': 0.05,  # white noise for goal coordinates
-        'glr': 7.5e-6,  # learning rate for association network
+        'glr': 1e-4,  # learning rate for association network old: 7.5e-6, new 1e-4
         'gwlim': [1,-1],  # clip weights
         'stochlearn': True,  # use Exploratory Hebbian rule (True) or Perceptron rule (False) for one-shot association
         'ach': ach,  # Acetylecholine for synaptic depression single 0.0005, 6pa 0.0001, obs 0.00005
@@ -153,15 +153,15 @@ def get_default_hp(task, platform='laptop'):
     }
 
     if hp['platform'] == 'laptop':
-        matplotlib.use('Agg')
+        # matplotlib.use('Agg')
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
         hp['cpucount'] = 1
     elif hp['platform'] == 'server':
-        matplotlib.use('tKAgg')
+        # matplotlib.use('tKAgg')
         hp['cpucount'] = 2 #mp.cpu_count()
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     elif hp['platform'] == 'gpu':
-        matplotlib.use('tKAgg')
+        # matplotlib.use('tKAgg')
         hp['cpucount'] = 1
     return hp
 
