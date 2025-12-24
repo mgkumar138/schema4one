@@ -141,27 +141,25 @@ if __name__ == '__main__':
     hp['taub'] = 100
     hp['tolr'] = 1e-8
 
+    hp['nrnn'] = args.nrnn
+
     exptname = f'ff_{hp["nrnn"]}N_{hp["ract"]}_{seed}s_{hp["stochlearn"]}sl_{hp["glr"]}glr'
     print(exptname)
-
-
-    hp['nrnn'] = args.nrnn
 
     err, rg = run_association(hp,seed)
 
     #%%
     # plot
-    # f = plt.figure()
-    # f.text(0.01,0.01,exptname,fontsize=8)
-    # #plt.subplot(211)
-    # plt.plot(np.arange(1,hp['ncues']+1), err[1])
-    # plt.xlabel('Number of cues')
-    # plt.ylabel('Recall MSE')
-    # #plt.title('Avg MSE {:.3g}'.format(np.ronp.mean(np.mean(allerr[:,:,1],axis=1),axis=1)))
-    # plt.savefig(f'{fig_dir}/{exptname}.png')
+    if seed ==0:
+        f = plt.figure()
+        f.text(0.01,0.01,exptname,fontsize=8)
+        plt.plot(np.arange(1,hp['ncues']+1), err[1])
+        plt.xlabel('Number of cues')
+        plt.ylabel('Recall MSE')
+        plt.savefig(f'{fig_dir}/{exptname}.png')
 
 
-    np.savez(f'{data_dir}/{exptname}.npz', errerr=err)
+    np.savez(f'{data_dir}/{exptname}.npz', err=err)
 
 
 # %%

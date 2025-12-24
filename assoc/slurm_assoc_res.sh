@@ -19,7 +19,7 @@ cat <<EOT > temp_slurm_${job_name}.sh
 #!/bin/bash
 #SBATCH -J ${job_name}
 #SBATCH -c 1
-#SBATCH -t 48:00:00
+#SBATCH -t 3:00:00
 #SBATCH -p seas_compute
 #SBATCH --gres=gpu:0
 #SBATCH --mem=5G
