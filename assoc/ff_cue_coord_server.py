@@ -1,14 +1,15 @@
+
+#%%
 import sys
 import os
 sys.path.append(os.getcwd())
-from backend.model import RecurrentCells, GoalCells
+sys.path.append(os.path.join(os.getcwd(), '../'))
+from backend.model_np import FeedForwardCells, GoalCells
 from backend.utils import get_default_hp, saveload, savefig
 from backend.maze import run_Rstep
 import numpy as np
 import matplotlib.pyplot as plt
-import multiprocessing as mp
-from functools import partial
-
+import argparse
 
 def run_association(hp,b):
     print(hp['nrnn'])
@@ -20,7 +21,7 @@ def run_association(hp,b):
     goals = np.random.uniform(low=-1,high=1, size=[ncues,2])
 
     # model
-    res = RecurrentCells(hp, ninput=ncues)
+    ff = FeedForwardCells(hp, ninput=ncues)
     target = GoalCells(hp)
     target.reset_goal_weights()
 
@@ -47,7 +48,6 @@ def run_association(hp,b):
                     goal = goals[c][None, :]
                     truegoal = np.concatenate([goal, np.array([[1]])], axis=1)
 
-                res.reset()
                 target.reset()
                 gt = np.zeros([1, 3])
 
@@ -58,7 +58,7 @@ def run_association(hp,b):
 
                 for t in range(hp['time'] * 1000 // hp['tstep']):
 
-                    rfr = res.process(cue[None, :])
+                    rfr = ff.process(cue[None, :])
                     gt = target.recall(rfr)
 
                     trackg.append(gt)  # record activity
@@ -96,87 +96,72 @@ def run_association(hp,b):
 
 if __name__ == '__main__':
 
-    hp = get_default_hp('6pa',platform='server')
+
+    parser = argparse.ArgumentParser(description='Run observation symmetry experiment')
+    parser.add_argument('--prefix', type=str, default='test', help='Prefix for saving the trained model')
+    parser.add_argument('--seed', type=int, default=2025, help='random seed')
+    parser.add_argument('--nrnn', type=int, default=256, help='N')
+    parser.add_argument('--use_stochlearn', action='store_true', help='stochastic learning (bool)')
+    parser.add_argument('--glr', type=float, default=1e-4, help='goal learning rate')
+    parser.add_argument('--chaos', type=float, default=1.5, help='chaos')
+    parser.add_argument('--nonlinearity', type=str, default='phia', help='relu, phia, tanh')
+    args, unknown = parser.parse_known_args()
+
+    seed = args.seed
+    np.random.seed(seed)
+
+    # save data
+    fig_dir = f'assoc_ff_{args.prefix}'
+    data_dir = f'/n/netscratch/pehlevan_lab/Lab/mgk/schema/assoc_{args.prefix}'
+    os.makedirs(data_dir, exist_ok=True)
+    os.makedirs(fig_dir, exist_ok=True)
+
+    print("assoc_ff:")
+    for arg in vars(args):
+        print(f"  {arg}: {getattr(args, arg)}")
+
+
+    hp = get_default_hp('6pa',platform='laptop')
 
     hp['time'] = 11
     hp['tstep'] = 20
-    hp['nrnn'] = 1000
     hp['gtau'] = 100  # 50/100
     hp['tau'] = 100
 
     hp['gns'] = 0.05  # 0.1-0.25
-    hp['stochlearn'] = True  # True - EH, False - LMS
-    hp['glr'] = 1e-4  # 0.01/0.005 lms (e=0.008), 0.01/0.0085 EH (e=0.1/e=0.08) | 1e-5/5e-6
+    hp['stochlearn'] = args.use_stochlearn  # True - EH, False - LMS
+    hp['glr'] = args.glr  # 0.01/0.005 lms (e=0.008), 0.01/0.0085 EH (e=0.1/e=0.08) | 1e-5/5e-6
     hp['ach'] = 0.000
-    hp['resns'] = 0.025
 
-    hp['chaos'] = 1.5
-    hp['cp'] = [1,0.1]
-    hp['ract'] = 'relu'
+    hp['ract'] = args.nonlinearity  #'relu'  #'phia'  #'tanh'  #
 
-    hp['ncues'] = 10  # 200
+    hp['ncues'] = 200  # 200
     hp['Rval'] = 1
     hp['taua'] = 250
     hp['taub'] = 100
     hp['tolr'] = 1e-8
 
-    hp['btstp'] = 24
-
-    exptname = 'res_{}_{}sl_{}c_{}b'.format(hp['ract'],hp['stochlearn'],hp['ncues'],hp['btstp'])
+    exptname = f'ff_{hp["nrnn"]}N_{hp["ract"]}_{seed}s_{hp["stochlearn"]}sl_{hp["glr"]}glr'
     print(exptname)
 
-    allN = 2**np.arange(7,12)
-    allN = [1024]
-    allerr = []
-    allrg = []
-    pool = mp.Pool(processes=hp['btstp'])
 
-    for N in allN:
+    hp['nrnn'] = args.nrnn
 
-        hp['nrnn'] = N
+    err, rg = run_association(hp,seed)
 
-        x = pool.map(partial(run_association, hp), np.arange(hp['btstp']))
-
-        toterr = []
-        totg = []
-        for b in range(hp['btstp']):
-            err, rg = x[b]
-            toterr.append(err[None,:])
-            totg.append(rg[None,:])
-
-        toterr = np.vstack(toterr)  # N X associate/recall X Ncues
-        allerr.append(toterr[None,:])
-        totg = np.vstack(totg)
-        allrg.append(totg[None,:])
-
-        saveload('save', 'vars_{}_{}'.format(exptname,N), [toterr, totg])
-
-    pool.close()
-    pool.join()
-
-    allerr = np.vstack(allerr)
-    allrg = np.vstack(allrg)
-    print(np.mean(np.mean(allerr[:,:,1],axis=1),axis=1))
-    saveload('save', 'allvars_{}'.format(exptname), [allerr, allrg])
-
+    #%%
     # plot
-    f = plt.figure()
-    f.text(0.01,0.01,exptname)
-    #plt.subplot(211)
-    for n in range(len(allN)):
-        plt.errorbar(x=np.arange(1,hp['ncues']+1), y=np.mean(allerr[n,:,1],axis=0), yerr=np.std(allerr[n,:,1],axis=0)/np.sqrt(hp['btstp']))
-    plt.legend(allN)
-    plt.xlabel('Number of cues')
-    plt.ylabel('Recall MSE')
-    #plt.title('Avg MSE {:.3g}'.format(np.ronp.mean(np.mean(allerr[:,:,1],axis=1),axis=1)))
-    plt.savefig('{}.png'.format(exptname))
+    # f = plt.figure()
+    # f.text(0.01,0.01,exptname,fontsize=8)
+    # #plt.subplot(211)
+    # plt.plot(np.arange(1,hp['ncues']+1), err[1])
+    # plt.xlabel('Number of cues')
+    # plt.ylabel('Recall MSE')
+    # #plt.title('Avg MSE {:.3g}'.format(np.ronp.mean(np.mean(allerr[:,:,1],axis=1),axis=1)))
+    # plt.savefig(f'{fig_dir}/{exptname}.png')
 
-    # [toterr_lms, totg_lms] = saveload('load', './assoc/vars_res_relu_Falsesl_10c_24b_1024', 1)
-    # [toterr_eh, totg_eh] = saveload('load', './assoc/vars_res_relu_Truesl_10c_24b_1024', 1)
-    #
-    # #
-    # # [allerr, allrg] = saveload('load', './assoc/allvars_{}'.format(exptname), 1)
-    #
-    # [allerr_lms, allrg_lms] = saveload('load', './gen_fig/Data/assoc/vars_res_phia_Falsesl_200c_24b', 1)
-    # [allerr_eh, allrg_eh] = saveload('load', './gen_fig/Data/assoc/vars_res_phia_Truesl_200c_24b', 1)
 
+    np.savez(f'{data_dir}/{exptname}.npz', errerr=err)
+
+
+# %%
