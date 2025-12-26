@@ -1,8 +1,8 @@
 #!/bin/bash
 
-nrnn_values=(1024 256)
-glr_values=(1e-4)
-use_stochlearn_values=(false true)
+nrnn_values=(1024)
+glr_values=(1e-5 2.5e-5 5e-5)
+use_stochlearn_values=(true)
 nonlinearity_values=(relu phia tanh)
 num_seeds=30
 

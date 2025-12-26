@@ -1,11 +1,12 @@
 #!/bin/bash
 
-nrnn_values=(1024 256)
-glr_values=(1e-4)
-use_stochlearn_values=(false true)
+nrnn_values=(64 128 256)
+glr_values=(0 1e-6 2.5e-6 5e-6 7.5e-6 1e-5 2.5e-5 5e-5 7.5e-4 1e-4)
+use_stochlearn_values=(true)
 nonlinearity_values=(relu phia tanh)
-chaos_values=(1.0 1.5)
+chaos_values=(1.5)
 num_seeds=30
+ncues=20
 
 for nrnn in "${nrnn_values[@]}"; do
   for glr in "${glr_values[@]}"; do
@@ -20,7 +21,7 @@ cat <<EOT > temp_slurm_${job_name}.sh
 #SBATCH -J ${job_name}
 #SBATCH -c 1
 #SBATCH -t 3:00:00
-#SBATCH -p seas_compute
+#SBATCH -p sapphire
 #SBATCH --gres=gpu:0
 #SBATCH --mem=5G
 #SBATCH -o log_res/${job_name}_%A_%a.log
@@ -32,7 +33,8 @@ conda activate tf
 
 # Use SLURM_ARRAY_TASK_ID as the seed
 CMD="python -u res_cue_coord_server.py \
-  --prefix 251225 \
+  --prefix 261225 \
+  --ncues ${ncues} \
   --nrnn ${nrnn} \
   --glr ${glr} \
   --chaos ${chaos} \

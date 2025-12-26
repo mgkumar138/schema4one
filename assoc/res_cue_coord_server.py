@@ -103,6 +103,7 @@ if __name__ == '__main__':
     parser.add_argument('--prefix', type=str, default='test', help='Prefix for saving the trained model')
     parser.add_argument('--seed', type=int, default=2025, help='random seed')
     parser.add_argument('--nrnn', type=int, default=256, help='N')
+    parser.add_argument('--ncues', type=int, default=200, help='Number of cues')
     parser.add_argument('--use_stochlearn', action='store_true', help='stochastic learning (bool)')
     parser.add_argument('--glr', type=float, default=1e-4, help='goal learning rate')
     parser.add_argument('--chaos', type=float, default=1.5, help='chaos')
@@ -140,7 +141,7 @@ if __name__ == '__main__':
     hp['cp'] = [1,0.1]
     hp['ract'] = args.nonlinearity  #'relu'  #'phia'  #'tanh'  #
 
-    hp['ncues'] = 200  # 200
+    hp['ncues'] = args.ncues  # 200
     hp['Rval'] = 1
     hp['taua'] = 250
     hp['taub'] = 100
@@ -148,7 +149,7 @@ if __name__ == '__main__':
 
     hp['nrnn'] = args.nrnn
 
-    exptname = f'res_{hp["nrnn"]}N_{hp["ract"]}_{seed}s_{hp["stochlearn"]}sl_{hp["glr"]}glr'
+    exptname = f'res_{hp["nrnn"]}N_{hp["ract"]}_{seed}s_{hp["stochlearn"]}sl_{hp["glr"]}glr_{hp["chaos"]}ch'
     print(exptname)
 
 
