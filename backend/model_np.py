@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import deque
-import tensorflow as tf
 
 class ResACAgent:
     def __init__(self, hp):
@@ -489,6 +488,7 @@ class ActorCells:
 
         if hp['usenmc']:
             # self.nmc = NumpyMotorController('../motor_controller/motor_controller_weights_128_40.npz')
+            import tensorflow as tf
             self.nmc = tf.keras.models.load_model('../motor_controller/mc_2h128_linear_30mb_31sp_0.6oe_20e_2022-10-08')
             print('Load TF motor controller')
 
